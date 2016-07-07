@@ -8,9 +8,9 @@ function assertName(name: string): void {
 
 export abstract class Emitter<T> implements kebakaran.IRef<T> {
 
-  private subscribed = false;
-  private onceListeners: Array<Listener<T>> = [];
-  private listeners: Array<Listener<T>> = [];
+  private _subscribed = false;
+  private _onceListeners: Array<Listener<T>> = [];
+  private _listeners: Array<Listener<T>> = [];
 
   protected abstract getData(): T;
 
@@ -21,43 +21,43 @@ export abstract class Emitter<T> implements kebakaran.IRef<T> {
   protected abstract close(): void;
 
   protected subscribeIfNeeded(): void {
-    if (!this.subscribed && (this.listeners.length || this.onceListeners.length)) {
-      this.subscribed = true;
+    if (!this._subscribed && (this._listeners.length || this._onceListeners.length)) {
+      this._subscribed = true;
       this.subscribe();
     }
   }
 
   protected unsubscribeIfNeeded(): void {
-    if (this.subscribed && this.listeners.length === 0 && this.onceListeners.length === 0) {
-      this.subscribed = false;
+    if (this._subscribed && this._listeners.length === 0 && this._onceListeners.length === 0) {
+      this._subscribed = false;
       this.close();
     }
   }
 
   protected addListener(listener: (value: T) => void, context: any, once?: boolean): void {
     if (once) {
-      this.onceListeners.push(new Listener<T>(listener, context));
+      this._onceListeners.push(new Listener<T>(listener, context));
     } else {
-      this.listeners.push(new Listener<T>(listener, context));
+      this._listeners.push(new Listener<T>(listener, context));
     }
   }
 
   protected removeListener(listener: (value: T) => void, context: any, once?: boolean): void {
-    let listeners: Array<Listener<T>> = once ? this.onceListeners : this.listeners;
+    let listeners: Array<Listener<T>> = once ? this._onceListeners : this._listeners;
     context = context || undefined;
     listeners = listeners.filter(item => item.getFn() !== listener || item.getContext() !== context);
     if (once) {
-      this.onceListeners = listeners;
+      this._onceListeners = listeners;
     } else {
-      this.listeners = listeners;
+      this._listeners = listeners;
     }
   }
 
   protected emit(): void {
     const value: T = this.getData();
-    this.listeners.forEach(listener => listener.call(value));
-    this.onceListeners.forEach(listener => listener.call(value));
-    this.onceListeners = [];
+    this._listeners.forEach(listener => listener.call(value));
+    this._onceListeners.forEach(listener => listener.call(value));
+    this._onceListeners = [];
     this.unsubscribeIfNeeded();
   }
 

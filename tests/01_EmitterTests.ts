@@ -1,6 +1,5 @@
 import * as tape from 'tape';
-
-import { RefMock } from './RefMock';
+import { RefMock } from './support/RefMock';
 
 tape('Emitter', (t: tape.Test) => {
   const emitter = new RefMock<string>();

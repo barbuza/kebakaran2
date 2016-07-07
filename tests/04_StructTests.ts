@@ -1,7 +1,6 @@
 import * as tape from 'tape';
-
 import { Struct } from '../lib/Struct';
-import { RefMock } from './RefMock';
+import { RefMock } from './support/RefMock';
 
 tape('Struct basic', (t: tape.Test) => {
   const foo = new RefMock<string>();

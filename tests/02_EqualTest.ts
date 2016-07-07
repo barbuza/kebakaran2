@@ -1,13 +1,11 @@
 import * as tape from 'tape';
-import * as Immutable from 'immutable';
-
 import { Equal } from '../lib/Equal';
-import { RefMock } from './RefMock';
+import { RefMock } from './support/RefMock';
 
 tape('Equal basic', (t: tape.Test) => {
   const ref = new RefMock<Array<string>>();
   const eq = new Equal<Array<string>>(ref);
-  
+
   t.plan(2);
 
   const listener = (value: Array<string>) => {

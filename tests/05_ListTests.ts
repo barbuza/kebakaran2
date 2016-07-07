@@ -1,7 +1,6 @@
 import * as tape from 'tape';
-
 import { List } from '../lib/List';
-import { RefMock } from './RefMock';
+import { RefMock } from './support/RefMock';
 
 tape('List basic', (t: tape.Test) => {
   const keys = new RefMock<Array<number>>();

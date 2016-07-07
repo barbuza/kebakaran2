@@ -1,7 +1,5 @@
 import * as Immutable from 'immutable';
-
 import { Emitter } from './Emitter';
-import { unwrapSnapshot } from './unwrapSnapshot';
 
 const emptySet = Immutable.Set<any>();
 const emptyList = Immutable.List<any>();
@@ -9,39 +7,37 @@ const emptyMap = Immutable.Map<any, any>();
 
 export class List<K, V> extends Emitter<Array<V>> {
 
-  private ref: kebakaran.IRef<Array<K>>;
-  private createChild: (key: K) => kebakaran.IRef<V>;
-  private unknownKeys: Immutable.Set<K>;
-  private keys: Immutable.List<K> = emptyList;
-  private values: Immutable.Map<K, V> = emptyMap;
-  private childListeners: Immutable.Map<K, (value: V) => void> = emptyMap;
-  private childRefs: Immutable.Map<K, kebakaran.IRef<V>> = emptyMap;
+  private _ref: kebakaran.IRef<Array<K>>;
+  private _createChild: (key: K) => kebakaran.IRef<V>;
+  private _unknownKeys: Immutable.Set<K>;
+  private _keys: Immutable.List<K> = emptyList;
+  private _values: Immutable.Map<K, V> = emptyMap;
+  private _childListeners: Immutable.Map<K, (value: V) => void> = emptyMap;
+  private _childRefs: Immutable.Map<K, kebakaran.IRef<V>> = emptyMap;
 
   constructor(ref: kebakaran.IRef<Array<K>>, createChild: (key: K) => kebakaran.IRef<V>) {
     super();
-    this.ref = ref;
-    this.createChild = createChild;
+    this._ref = ref;
+    this._createChild = createChild;
   }
 
-  private onRefValue(snapshot: kebakaran.ISnapshot<Array<K>> | Array<K>) {
-    const value = unwrapSnapshot(snapshot);
-
-    this.keys = Immutable.List(value);
+  private onRefValue(value: Array<K>) {
+    this._keys = Immutable.List(value);
     const keySet: Immutable.Set<K> = Immutable.Set(value);
 
-    const newKeys: Immutable.Set<K> = Immutable.Set(keySet.keySeq()).subtract(this.childListeners.keySeq());
-    const oldKeys: Immutable.Set<K> = Immutable.Set(this.childListeners.keySeq()).subtract(keySet.keySeq());
+    const newKeys: Immutable.Set<K> = Immutable.Set(keySet.keySeq()).subtract(this._childListeners.keySeq());
+    const oldKeys: Immutable.Set<K> = Immutable.Set(this._childListeners.keySeq()).subtract(keySet.keySeq());
 
-    if (!this.unknownKeys) {
-      this.unknownKeys = emptySet;
+    if (!this._unknownKeys) {
+      this._unknownKeys = emptySet;
     }
-    this.unknownKeys = Immutable.Set<K>(this.unknownKeys.concat(newKeys)).subtract(oldKeys);
+    this._unknownKeys = Immutable.Set<K>(this._unknownKeys.concat(newKeys)).subtract(oldKeys);
 
-    this.childListeners = this.childListeners.withMutations((mutableListeners: Immutable.Map<K, (value: V) => void>) => {
-      this.childRefs = this.childRefs.withMutations((mutableChildRefs: Immutable.Map<K, kebakaran.IRef<V>>) => {
+    this._childListeners = this._childListeners.withMutations((mutableListeners: Immutable.Map<K, (value: V) => void>) => {
+      this._childRefs = this._childRefs.withMutations((mutableChildRefs: Immutable.Map<K, kebakaran.IRef<V>>) => {
 
         newKeys.forEach((key: K) => {
-          const child = this.createChild(key);
+          const child = this._createChild(key);
           const listener = this.onChildValue.bind(this, key);
           mutableListeners.set(key, listener);
           mutableChildRefs.set(key, child);
@@ -54,54 +50,52 @@ export class List<K, V> extends Emitter<Array<V>> {
           child.off('value', listener);
           mutableListeners.remove(key);
           mutableChildRefs.remove(key);
-          this.values = this.values.remove(key);
+          this._values = this._values.remove(key);
         });
 
       });
     });
 
-    if (this.unknownKeys.size === 0) {
+    if (this._unknownKeys.size === 0) {
       this.emit();
     }
   }
 
-  private onChildValue(key: K, snapshot: kebakaran.ISnapshot<V> | V) {
-    const value = unwrapSnapshot(snapshot);
+  private onChildValue(key: K, value: V) {
+    this._values = this._values.set(key, value);
+    this._unknownKeys = this._unknownKeys.remove(key);
 
-    this.values = this.values.set(key, value);
-    this.unknownKeys = this.unknownKeys.remove(key);
-
-    if (this.unknownKeys.size === 0) {
+    if (this._unknownKeys.size === 0) {
       this.emit();
     }
   }
 
   protected getData(): Array<V> {
-    const result:Array<V> = [];
-    this.keys.forEach((key: K) => {
-      result.push(this.values.get(key));
-    }); 
+    const result: Array<V> = [];
+    this._keys.forEach((key: K) => {
+      result.push(this._values.get(key));
+    });
     return result;
   }
 
   protected hasData(): boolean {
-    return this.unknownKeys && this.unknownKeys.size == 0
+    return this._unknownKeys && this._unknownKeys.size == 0
   }
 
   protected subscribe(): void {
-    this.ref.on('value', this.onRefValue, this);
+    this._ref.on('value', this.onRefValue, this);
   }
 
   protected close(): void {
-    this.ref.off('value', this.onRefValue, this);
-    this.childListeners.forEach((listener: (value: V) => void, key: K) => {
-      this.childRefs.get(key).off('value', listener);
+    this._ref.off('value', this.onRefValue, this);
+    this._childListeners.forEach((listener: (value: V) => void, key: K) => {
+      this._childRefs.get(key).off('value', listener);
     });
-    this.childListeners = emptyMap;
-    this.childRefs = emptyMap;
-    this.keys = emptyList;
-    delete this.unknownKeys;
-    this.values = emptyMap;
+    this._childListeners = emptyMap;
+    this._childRefs = emptyMap;
+    this._keys = emptyList;
+    delete this._unknownKeys;
+    this._values = emptyMap;
   }
 
 }

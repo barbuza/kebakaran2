@@ -1,18 +1,17 @@
-import { Emitter } from '../lib/Emitter';
-
-const NO_VALUE = {};
+import { Emitter } from '../../lib/Emitter';
 
 export class RefMock<T> extends Emitter<T> {
 
-  private data: T = NO_VALUE as T;
+  private _hasData: boolean = false;
+  private _data: T = undefined;
   public isOpen: boolean = false;
 
   protected getData(): T {
-    return this.data;
+    return this._data;
   }
 
   protected hasData(): boolean {
-    return this.data !== NO_VALUE;
+    return this._hasData;
   }
 
   protected subscribe(): void {
@@ -24,12 +23,14 @@ export class RefMock<T> extends Emitter<T> {
   }
 
   public fakeEmit(value: T): void {
-    this.data = value;
+    this._data = value;
+    this._hasData = true;
     this.emit();
   }
 
   public resetValue(): void {
-    this.data = NO_VALUE as T;
+    this._data = undefined;
+    this._hasData = false;
   }
 
 }

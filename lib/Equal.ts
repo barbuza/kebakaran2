@@ -1,45 +1,41 @@
 import * as Immutable from 'immutable';
-
 import { Emitter } from './Emitter';
-import { unwrapSnapshot } from './unwrapSnapshot';
-
-const NO_VALUE = {};
 
 export class Equal<V> extends Emitter<V> {
-  private ref: kebakaran.IRef<V>;
-  private value:any = NO_VALUE;
-  private immutableValue: any;
+  private _ref: kebakaran.IRef<V>;
+  private _data: any = undefined;
+  private _immutableData: any;
+  private _hasData: boolean = false;
 
   constructor(ref: kebakaran.IRef<V>) {
     super();
-    this.ref = ref;
+    this._ref = ref;
   }
 
   protected getData(): V {
-    return this.value;
+    return this._data;
   }
 
   protected hasData(): boolean {
-    return this.value !== NO_VALUE;
+    return this._hasData;
   }
 
-  private onData(snapshot: kebakaran.ISnapshot<V> | V) {
-    const value = unwrapSnapshot(snapshot);
-
+  private onData(value: V) {
     const newImmutableValue = Immutable.fromJS(value);
 
-    if (!Immutable.is(newImmutableValue, this.immutableValue)) {
-      this.immutableValue = newImmutableValue;
-      this.value = value;
+    if (!Immutable.is(newImmutableValue, this._immutableData)) {
+      this._immutableData = newImmutableValue;
+      this._data = value;
+      this._hasData = true;
       this.emit();
     }
   }
 
   protected subscribe(): void {
-    this.ref.on('value', this.onData, this);
+    this._ref.on('value', this.onData, this);
   }
 
   protected close(): void {
-    this.ref.off('value', this.onData, this);
+    this._ref.off('value', this.onData, this);
   }
 }
