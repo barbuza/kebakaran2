@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "immutable": "registry:npm/immutable#3.7.6+20160411060006",
+    "tape": "registry:npm/tape#4.0.0+20160622192935"
+  },
+  "globalDependencies": {
+    "node": "registry:env/node#6.0.0+20160622202520"
+  }
+}
