@@ -22,16 +22,16 @@ export class List<K, V> extends Emitter<Array<V>> {
     this._createChild = createChild;
   }
 
-  protected hasData(): boolean {
+  protected _ready(): boolean {
     return this._hasKeys && this._unknownKeys.size === 0;
   }
 
-  protected subscribe(): void {
-    this._ref.on('value', this.onRefValue, this);
+  protected _subscribe(): void {
+    this._ref.on('value', this._onRefValue, this);
   }
 
-  protected close(): void {
-    this._ref.off('value', this.onRefValue, this);
+  protected _close(): void {
+    this._ref.off('value', this._onRefValue, this);
     this._childListeners.forEach((listener: (value: V) => void, key: K) => {
       this._childRefs.get(key).off('value', listener);
     });
@@ -44,7 +44,7 @@ export class List<K, V> extends Emitter<Array<V>> {
     this._hasKeys = false;
   }
 
-  private onRefValue(value: Array<K>) {
+  private _onRefValue(value: Array<K>) {
     const prevKeySet = Immutable.Set(this._keys);
 
     this._keys = Immutable.List(value);
@@ -62,7 +62,7 @@ export class List<K, V> extends Emitter<Array<V>> {
 
         newKeys.forEach((key: K) => {
           const child = this._createChild(key);
-          const listener = this.onChildValue.bind(this, key);
+          const listener = this._onChildValue.bind(this, key);
           mutableListeners.set(key, listener);
           mutableChildRefs.set(key, child);
           child.on('value', listener);
@@ -80,23 +80,23 @@ export class List<K, V> extends Emitter<Array<V>> {
       });
     });
 
-    this.tryEmit();
+    this._tryEmit();
   }
 
-  private onChildValue(key: K, value: V) {
+  private _onChildValue(key: K, value: V) {
     this._values = this._values.set(key, value);
     this._unknownKeys = this._unknownKeys.remove(key);
 
-    this.tryEmit();
+    this._tryEmit();
   }
 
-  private tryEmit() {
-    if (this.hasData()) {
+  private _tryEmit() {
+    if (this._ready()) {
       this._data = [];
       this._keys.forEach((key: K) => {
         this._data.push(this._values.get(key));
       });
-      this.emit();
+      this._emit();
     }
   }
 

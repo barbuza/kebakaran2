@@ -26,22 +26,22 @@ export class Transform<F, T> extends Emitter<T> {
     this._transform = transform;
   }
 
-  protected hasData(): boolean {
+  protected _ready(): boolean {
     return this._hasData;
   }
 
-  protected subscribe(): void {
+  protected _subscribe(): void {
     this._ref.on('value', this.onRefValue, this);
   }
 
-  protected close(): void {
+  protected _close(): void {
     this._ref.off('value', this.onRefValue, this);
   }
 
   private onRefValue(value: F) {
     this._data = this._transform(value);
     this._hasData = true;
-    this.emit();
+    this._emit();
   }
 
 }

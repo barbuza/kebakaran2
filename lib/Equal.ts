@@ -12,26 +12,26 @@ export class Equal<V> extends Emitter<V> {
     this._ref = ref;
   }
 
-  protected hasData(): boolean {
+  protected _ready(): boolean {
     return this._hasData;
   }
 
-  protected subscribe(): void {
-    this._ref.on('value', this.onData, this);
+  protected _subscribe(): void {
+    this._ref.on('value', this._onValue, this);
   }
 
-  protected close(): void {
-    this._ref.off('value', this.onData, this);
+  protected _close(): void {
+    this._ref.off('value', this._onValue, this);
   }
 
-  private onData(value: V) {
+  private _onValue(value: V) {
     const newImmutableValue = Immutable.fromJS(value);
 
     if (!Immutable.is(newImmutableValue, this._immutableData)) {
       this._immutableData = newImmutableValue;
       this._data = value;
       this._hasData = true;
-      this.emit();
+      this._emit();
     }
   }
 

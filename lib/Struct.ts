@@ -26,21 +26,21 @@ export class Struct<T> extends Emitter<T> {
     }
   }
 
-  protected hasData(): boolean {
+  protected _ready(): boolean {
     return this._unknownFields.length === 0;
   }
 
-  protected subscribe(): void {
+  protected _subscribe(): void {
     for (const name in this._fields) {
       if (this._fields.hasOwnProperty(name)) {
-        const listener = this.onFieldValue.bind(this, name);
+        const listener = this._onFieldValue.bind(this, name);
         this._fieldListeners[name] = listener;
         this._fields[name].on('value', listener);
       }
     }
   }
 
-  protected close(): void {
+  protected _close(): void {
     this._data = {} as T;
     this._unknownFields = [];
     for (const name in this._fields) {
@@ -52,14 +52,14 @@ export class Struct<T> extends Emitter<T> {
     this._fieldListeners = {};
   }
 
-  private onFieldValue(name: string, value: any): void {
+  private _onFieldValue(name: string, value: any): void {
     this._data[name] = value;
     const unknownIndex = this._unknownFields.indexOf(name);
     if (unknownIndex !== -1) {
       this._unknownFields.splice(unknownIndex, 1);
     }
     if (!this._unknownFields.length) {
-      this.emit();
+      this._emit();
     }
   }
 

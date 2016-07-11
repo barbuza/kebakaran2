@@ -17,11 +17,11 @@ export abstract class Emitter<T> implements kebakaran.IRef<T> {
   public on(name: string, listener: (value: T) => void, context?: any): this {
     assertName(name);
 
-    this.addListener(listener, context);
-    if (this.hasData()) {
+    this._addListener(listener, context);
+    if (this._ready()) {
       listener.call(context, this._data);
     }
-    this.subscribeIfNeeded();
+    this._subscribeIfNeeded();
 
     return this;
   }
@@ -29,8 +29,8 @@ export abstract class Emitter<T> implements kebakaran.IRef<T> {
   public off(name: string, listener: (value: T) => void, context?: any): this {
     assertName(name);
 
-    this.removeListener(listener, context);
-    this.unsubscribeIfNeeded();
+    this._removeListener(listener, context);
+    this._unsubscribeIfNeeded();
 
     return this;
   }
@@ -38,37 +38,44 @@ export abstract class Emitter<T> implements kebakaran.IRef<T> {
   public once(name: string, listener: (value: T) => void, context?: any): this {
     assertName(name);
 
-    if (this.hasData()) {
+    if (this._ready()) {
       listener.call(context, this._data);
     } else {
-      this.addListener(listener, context, true);
-      this.subscribeIfNeeded();
+      this._addListener(listener, context, true);
+      this._subscribeIfNeeded();
     }
 
     return this;
   }
 
-  protected abstract hasData(): boolean;
+  protected abstract _ready(): boolean;
 
-  protected abstract subscribe(): void;
+  protected abstract _subscribe(): void;
 
-  protected abstract close(): void;
+  protected abstract _close(): void;
 
-  protected subscribeIfNeeded(): void {
+  protected _emit(): void {
+    this._listeners.forEach(listener => listener.call(this._data));
+    this._onceListeners.forEach(listener => listener.call(this._data));
+    this._onceListeners = [];
+    this._unsubscribeIfNeeded();
+  }
+
+  private _subscribeIfNeeded(): void {
     if (!this._subscribed && (this._listeners.length || this._onceListeners.length)) {
       this._subscribed = true;
-      this.subscribe();
+      this._subscribe();
     }
   }
 
-  protected unsubscribeIfNeeded(): void {
+  private _unsubscribeIfNeeded(): void {
     if (this._subscribed && this._listeners.length === 0 && this._onceListeners.length === 0) {
       this._subscribed = false;
-      this.close();
+      this._close();
     }
   }
 
-  protected addListener(listener: (value: T) => void, context: any, once?: boolean): void {
+  private _addListener(listener: (value: T) => void, context: any, once?: boolean): void {
     if (once) {
       this._onceListeners.push(new Listener<T>(listener, context, true));
     } else {
@@ -76,17 +83,10 @@ export abstract class Emitter<T> implements kebakaran.IRef<T> {
     }
   }
 
-  protected removeListener(listener: (value: T) => void, context: any): void {
+  private _removeListener(listener: (value: T) => void, context: any): void {
     context = context || undefined;
     this._onceListeners = this._onceListeners.filter(item => item.getFn() !== listener || item.getContext() !== context);
     this._listeners = this._listeners.filter(item => item.getFn() !== listener || item.getContext() !== context);
-  }
-
-  protected emit(): void {
-    this._listeners.forEach(listener => listener.call(this._data));
-    this._onceListeners.forEach(listener => listener.call(this._data));
-    this._onceListeners = [];
-    this.unsubscribeIfNeeded();
   }
 
 }

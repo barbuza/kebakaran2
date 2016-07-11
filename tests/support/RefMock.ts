@@ -8,22 +8,22 @@ export class RefMock<T> extends Emitter<T> {
   public fakeEmit(value: T): void {
     this._data = value;
     this._hasData = true;
-    this.emit();
+    this._emit();
   }
 
   public resetValue(): void {
     this._hasData = false;
   }
 
-  protected hasData(): boolean {
+  protected _ready(): boolean {
     return this._hasData;
   }
 
-  protected subscribe(): void {
+  protected _subscribe(): void {
     this.isOpen = true;
   }
 
-  protected close(): void {
+  protected _close(): void {
     this.isOpen = false;
   }
 
