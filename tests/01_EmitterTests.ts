@@ -5,8 +5,8 @@ tape('Emitter basic', (t: tape.Test) => {
   const emitter = new RefMock<string>();
   t.false(emitter.isOpen);
 
-  let foo: string = undefined;
-  let bar: string = undefined;
+  let foo: string | undefined = undefined;
+  let bar: string | undefined = undefined;
 
   emitter.on('value', value => {
     foo = value;

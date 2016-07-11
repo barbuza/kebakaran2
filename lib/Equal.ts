@@ -2,8 +2,8 @@ import * as Immutable from 'immutable';
 import { Emitter } from './Emitter';
 
 export class Equal<V> extends Emitter<V> {
+
   private _ref: kebakaran.IRef<V>;
-  private _data: any = undefined;
   private _immutableData: any;
   private _hasData: boolean = false;
 
@@ -12,12 +12,16 @@ export class Equal<V> extends Emitter<V> {
     this._ref = ref;
   }
 
-  protected getData(): V {
-    return this._data;
-  }
-
   protected hasData(): boolean {
     return this._hasData;
+  }
+
+  protected subscribe(): void {
+    this._ref.on('value', this.onData, this);
+  }
+
+  protected close(): void {
+    this._ref.off('value', this.onData, this);
   }
 
   private onData(value: V) {
@@ -31,11 +35,4 @@ export class Equal<V> extends Emitter<V> {
     }
   }
 
-  protected subscribe(): void {
-    this._ref.on('value', this.onData, this);
-  }
-
-  protected close(): void {
-    this._ref.off('value', this.onData, this);
-  }
 }

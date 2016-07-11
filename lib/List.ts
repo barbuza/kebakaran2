@@ -15,12 +15,33 @@ export class List<K, V> extends Emitter<Array<V>> {
   private _childListeners: Immutable.Map<K, (value: V) => void> = emptyMap;
   private _childRefs: Immutable.Map<K, kebakaran.IRef<V>> = emptyMap;
   private _hasKeys: boolean = false;
-  private _data: Array<V> = undefined;
 
   constructor(ref: kebakaran.IRef<Array<K>>, createChild: (key: K) => kebakaran.IRef<V>) {
     super();
     this._ref = ref;
     this._createChild = createChild;
+  }
+
+  protected hasData(): boolean {
+    return this._hasKeys && this._unknownKeys.size === 0;
+  }
+
+  protected subscribe(): void {
+    this._ref.on('value', this.onRefValue, this);
+  }
+
+  protected close(): void {
+    this._ref.off('value', this.onRefValue, this);
+    this._childListeners.forEach((listener: (value: V) => void, key: K) => {
+      this._childRefs.get(key).off('value', listener);
+    });
+    this._childListeners = emptyMap;
+    this._childRefs = emptyMap;
+    this._keys = emptyList;
+    this._unknownKeys = emptySet;
+    this._values = emptyMap;
+    this._data = [];
+    this._hasKeys = false;
   }
 
   private onRefValue(value: Array<K>) {
@@ -69,7 +90,7 @@ export class List<K, V> extends Emitter<Array<V>> {
     this.tryEmit();
   }
 
-  protected tryEmit() {
+  private tryEmit() {
     if (this.hasData()) {
       this._data = [];
       this._keys.forEach((key: K) => {
@@ -77,32 +98,6 @@ export class List<K, V> extends Emitter<Array<V>> {
       });
       this.emit();
     }
-  }
-
-  protected getData(): Array<V> {
-    return this._data;
-  }
-
-  protected hasData(): boolean {
-    return this._hasKeys && this._unknownKeys.size == 0;
-  }
-
-  protected subscribe(): void {
-    this._ref.on('value', this.onRefValue, this);
-  }
-
-  protected close(): void {
-    this._ref.off('value', this.onRefValue, this);
-    this._childListeners.forEach((listener: (value: V) => void, key: K) => {
-      this._childRefs.get(key).off('value', listener);
-    });
-    this._childListeners = emptyMap;
-    this._childRefs = emptyMap;
-    this._keys = emptyList;
-    this._unknownKeys = emptySet;
-    this._values = emptyMap;
-    this._data = undefined;
-    this._hasKeys = false;
   }
 
 }

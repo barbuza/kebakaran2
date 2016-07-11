@@ -6,7 +6,7 @@ tape('Transform basic', (t: tape.Test) => {
   const foo = new RefMock<number>();
   const transform = new Transform<number, number>(foo, x => x + 1);
 
-  let val: number = undefined;
+  let val: number | undefined = undefined;
 
   const listener = (value: number) => {
     val = value;

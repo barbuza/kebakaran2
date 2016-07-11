@@ -8,11 +8,45 @@ function assertName(name: string): void {
 
 export abstract class Emitter<T> implements kebakaran.IRef<T> {
 
+  protected _data: T;
+
   private _subscribed = false;
   private _onceListeners: Array<Listener<T>> = [];
   private _listeners: Array<Listener<T>> = [];
 
-  protected abstract getData(): T;
+  public on(name: string, listener: (value: T) => void, context?: any): this {
+    assertName(name);
+
+    this.addListener(listener, context);
+    if (this.hasData()) {
+      listener.call(context, this._data);
+    }
+    this.subscribeIfNeeded();
+
+    return this;
+  }
+
+  public off(name: string, listener: (value: T) => void, context?: any): this {
+    assertName(name);
+
+    this.removeListener(listener, context);
+    this.unsubscribeIfNeeded();
+
+    return this;
+  }
+
+  public once(name: string, listener: (value: T) => void, context?: any): this {
+    assertName(name);
+
+    if (this.hasData()) {
+      listener.call(context, this._data);
+    } else {
+      this.addListener(listener, context, true);
+      this.subscribeIfNeeded();
+    }
+
+    return this;
+  }
 
   protected abstract hasData(): boolean;
 
@@ -49,45 +83,10 @@ export abstract class Emitter<T> implements kebakaran.IRef<T> {
   }
 
   protected emit(): void {
-    const value: T = this.getData();
-    this._listeners.forEach(listener => listener.call(value));
-    this._onceListeners.forEach(listener => listener.call(value));
+    this._listeners.forEach(listener => listener.call(this._data));
+    this._onceListeners.forEach(listener => listener.call(this._data));
     this._onceListeners = [];
     this.unsubscribeIfNeeded();
-  }
-
-  public on(name: string, listener: (value: T) => void, context?: any): this {
-    assertName(name);
-
-    this.addListener(listener, context);
-    if (this.hasData()) {
-      listener.call(context, this.getData());
-    }
-    this.subscribeIfNeeded();
-
-    return this;
-  }
-
-  public off(name: string, listener: (value: T) => void, context?: any): this {
-    assertName(name);
-
-    this.removeListener(listener, context);
-    this.unsubscribeIfNeeded();
-
-    return this;
-  }
-
-  public once(name: string, listener: (value: T) => void, context?: any): this {
-    assertName(name);
-
-    if (this.hasData()) {
-      listener.call(context, this.getData());
-    } else {
-      this.addListener(listener, context, true);
-      this.subscribeIfNeeded();
-    }
-
-    return this;
   }
 
 }

@@ -12,7 +12,7 @@ tape('List basic', (t: tape.Test) => {
 
   const list = new List<number, string>(keys, (key: number) => children[key]);
 
-  let val: Array<string> = undefined;
+  let val: Array<string> | undefined = undefined;
 
   const listener = (value: Array<string>) => {
     val = value;
@@ -57,7 +57,7 @@ tape('List internals', (t: tape.Test) => {
 
   const list = new List<number, string>(keys, key => children[key]);
 
-  let value: Array<string> = undefined;
+  let value: Array<string> | undefined = undefined;
   list.on('value', val => {
     value = val;
   });
@@ -89,7 +89,7 @@ tape('List once', (t: tape.Test) => {
   ];
 
   const list = new List<number, string>(keys, key => children[key]);
-  let value: Array<string> = undefined;
+  let value: Array<string> | undefined = undefined;
 
   children[0].fakeEmit('foo');
   children[1].fakeEmit('bar');

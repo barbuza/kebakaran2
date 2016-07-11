@@ -6,19 +6,19 @@ tape('Struct basic', (t: tape.Test) => {
   const foo = new RefMock<string>();
   const bar = new RefMock<number>();
 
-  interface StructValue {
+  interface IStructValue {
     foo: string;
     bar: number;
   }
 
-  const struct = new Struct<StructValue>({ foo, bar });
+  const struct = new Struct<IStructValue>({ foo, bar });
 
   t.false(foo.isOpen);
   t.false(bar.isOpen);
 
-  let val: StructValue = undefined;
+  let val: IStructValue | undefined = undefined;
 
-  const listener = (value: StructValue) => {
+  const listener = (value: IStructValue) => {
     val = value;
   };
 
@@ -62,22 +62,22 @@ tape('Struct basic', (t: tape.Test) => {
 tape('Struct nested', (t: tape.Test) => {
   const foo = new RefMock<string>();
 
-  interface ChildValue {
+  interface IChildValue {
     foo: string;
   }
 
-  interface ParentValue {
-    child: ChildValue;
+  interface IParentValue {
+    child: IChildValue;
   }
 
-  const child = new Struct<ChildValue>({ foo });
-  const parent = new Struct<ParentValue>({ child });
+  const child = new Struct<IChildValue>({ foo });
+  const parent = new Struct<IParentValue>({ child });
 
   t.false(foo.isOpen);
 
-  let val: ParentValue = undefined;
+  let val: IParentValue | undefined = undefined;
 
-  const listener = (value: ParentValue) => {
+  const listener = (value: IParentValue) => {
     val = value;
   };
 
@@ -99,12 +99,12 @@ tape('Struct once', (t: tape.Test) => {
   const foo = new RefMock<string>();
   const bar = new RefMock<number>();
 
-  interface StructValue {
+  interface IStructValue {
     foo: string;
     bar: number;
   }
 
-  const struct = new Struct<StructValue>({ foo, bar });
+  const struct = new Struct<IStructValue>({ foo, bar });
 
   foo.fakeEmit('spam');
   bar.fakeEmit(1);

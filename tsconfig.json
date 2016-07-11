@@ -10,10 +10,13 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "sourceMap": true,
-    "removeComments": true
+    "removeComments": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true
   },
-  "exclude": [
-    "node_modules",
-    "dist"
+  "filesGlob": [
+    "typings/",
+    "lib/",
+    "tests/"
   ]
 }

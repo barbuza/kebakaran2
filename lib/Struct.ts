@@ -1,21 +1,22 @@
 import { Emitter } from './Emitter';
 
-export interface StructFields {
+export interface IStructFields {
   [key: string]: kebakaran.IRef<any>;
 }
 
-interface FieldListeners {
+interface IFieldListeners {
   [key: string]: (value: any) => void;
 }
 
 export class Struct<T> extends Emitter<T> {
 
-  private _data: T = {} as T;
-  private _unknownFields: Array<string> = [];
-  private _fieldListeners: FieldListeners = {};
-  private _fields: StructFields = {};
+  protected _data: T = {} as T;
 
-  constructor(fields: StructFields) {
+  private _unknownFields: Array<string> = [];
+  private _fieldListeners: IFieldListeners = {};
+  private _fields: IStructFields = {};
+
+  constructor(fields: IStructFields) {
     super();
     this._fields = fields;
     for (const name in this._fields) {
@@ -23,10 +24,6 @@ export class Struct<T> extends Emitter<T> {
         this._unknownFields.push(name);
       }
     }
-  }
-
-  protected getData(): T {
-    return this._data;
   }
 
   protected hasData(): boolean {
@@ -43,17 +40,6 @@ export class Struct<T> extends Emitter<T> {
     }
   }
 
-  protected onFieldValue(name: string, value: any): void {
-    this._data[name] = value;
-    const unknownIndex = this._unknownFields.indexOf(name);
-    if (unknownIndex !== -1) {
-      this._unknownFields.splice(unknownIndex, 1);
-    }
-    if (!this._unknownFields.length) {
-      this.emit();
-    }
-  }
-
   protected close(): void {
     this._data = {} as T;
     this._unknownFields = [];
@@ -64,6 +50,17 @@ export class Struct<T> extends Emitter<T> {
       }
     }
     this._fieldListeners = {};
+  }
+
+  private onFieldValue(name: string, value: any): void {
+    this._data[name] = value;
+    const unknownIndex = this._unknownFields.indexOf(name);
+    if (unknownIndex !== -1) {
+      this._unknownFields.splice(unknownIndex, 1);
+    }
+    if (!this._unknownFields.length) {
+      this.emit();
+    }
   }
 
 }

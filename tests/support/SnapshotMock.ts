@@ -8,11 +8,11 @@ export class SnapshotMock<T> implements kebakaran.ISnapshot<T> {
     this.value = value;
   }
 
-  val(): T {
+  public val(): T {
     return this.value;
   }
 
-  key(): string {
+  public key(): string {
     return this._key;
   }
 
