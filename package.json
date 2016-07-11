@@ -18,7 +18,6 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.9",
-    "faucet": "0.0.1",
     "immutable": "^3.8.1",
     "nyc": "^6.6.1",
     "rimraf": "^2.5.3",
