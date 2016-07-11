@@ -9,11 +9,13 @@ export class List<K, V> extends Emitter<Array<V>> {
 
   private _ref: kebakaran.IRef<Array<K>>;
   private _createChild: (key: K) => kebakaran.IRef<V>;
-  private _unknownKeys: Immutable.Set<K>;
+  private _unknownKeys: Immutable.Set<K> = emptySet;
   private _keys: Immutable.List<K> = emptyList;
   private _values: Immutable.Map<K, V> = emptyMap;
   private _childListeners: Immutable.Map<K, (value: V) => void> = emptyMap;
   private _childRefs: Immutable.Map<K, kebakaran.IRef<V>> = emptyMap;
+  private _hasKeys: boolean = false;
+  private _data: Array<V> = undefined;
 
   constructor(ref: kebakaran.IRef<Array<K>>, createChild: (key: K) => kebakaran.IRef<V>) {
     super();
@@ -22,15 +24,16 @@ export class List<K, V> extends Emitter<Array<V>> {
   }
 
   private onRefValue(value: Array<K>) {
+    const prevKeySet = Immutable.Set(this._keys);
+
     this._keys = Immutable.List(value);
+    this._hasKeys = true;
+
     const keySet: Immutable.Set<K> = Immutable.Set(value);
 
-    const newKeys: Immutable.Set<K> = Immutable.Set(keySet.keySeq()).subtract(this._childListeners.keySeq());
-    const oldKeys: Immutable.Set<K> = Immutable.Set(this._childListeners.keySeq()).subtract(keySet.keySeq());
+    const newKeys: Immutable.Set<K> = keySet.subtract(prevKeySet);
+    const oldKeys: Immutable.Set<K> = prevKeySet.subtract(keySet);
 
-    if (!this._unknownKeys) {
-      this._unknownKeys = emptySet;
-    }
     this._unknownKeys = Immutable.Set<K>(this._unknownKeys.concat(newKeys)).subtract(oldKeys);
 
     this._childListeners = this._childListeners.withMutations((mutableListeners: Immutable.Map<K, (value: V) => void>) => {
@@ -56,30 +59,32 @@ export class List<K, V> extends Emitter<Array<V>> {
       });
     });
 
-    if (this._unknownKeys.size === 0) {
-      this.emit();
-    }
+    this.tryEmit();
   }
 
   private onChildValue(key: K, value: V) {
     this._values = this._values.set(key, value);
     this._unknownKeys = this._unknownKeys.remove(key);
 
-    if (this._unknownKeys.size === 0) {
+    this.tryEmit();
+  }
+
+  protected tryEmit() {
+    if (this.hasData()) {
+      this._data = [];
+      this._keys.forEach((key: K) => {
+        this._data.push(this._values.get(key));
+      });
       this.emit();
     }
   }
 
   protected getData(): Array<V> {
-    const result: Array<V> = [];
-    this._keys.forEach((key: K) => {
-      result.push(this._values.get(key));
-    });
-    return result;
+    return this._data;
   }
 
   protected hasData(): boolean {
-    return this._unknownKeys && this._unknownKeys.size == 0
+    return this._hasKeys && this._unknownKeys.size == 0;
   }
 
   protected subscribe(): void {
@@ -94,8 +99,10 @@ export class List<K, V> extends Emitter<Array<V>> {
     this._childListeners = emptyMap;
     this._childRefs = emptyMap;
     this._keys = emptyList;
-    delete this._unknownKeys;
+    this._unknownKeys = emptySet;
     this._values = emptyMap;
+    this._data = undefined;
+    this._hasKeys = false;
   }
 
 }

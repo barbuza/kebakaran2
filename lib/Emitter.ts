@@ -36,21 +36,16 @@ export abstract class Emitter<T> implements kebakaran.IRef<T> {
 
   protected addListener(listener: (value: T) => void, context: any, once?: boolean): void {
     if (once) {
-      this._onceListeners.push(new Listener<T>(listener, context));
+      this._onceListeners.push(new Listener<T>(listener, context, true));
     } else {
       this._listeners.push(new Listener<T>(listener, context));
     }
   }
 
-  protected removeListener(listener: (value: T) => void, context: any, once?: boolean): void {
-    let listeners: Array<Listener<T>> = once ? this._onceListeners : this._listeners;
+  protected removeListener(listener: (value: T) => void, context: any): void {
     context = context || undefined;
-    listeners = listeners.filter(item => item.getFn() !== listener || item.getContext() !== context);
-    if (once) {
-      this._onceListeners = listeners;
-    } else {
-      this._listeners = listeners;
-    }
+    this._onceListeners = this._onceListeners.filter(item => item.getFn() !== listener || item.getContext() !== context);
+    this._listeners = this._listeners.filter(item => item.getFn() !== listener || item.getContext() !== context);
   }
 
   protected emit(): void {
