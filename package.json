@@ -1,18 +1,23 @@
 {
   "name": "kebakaran",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.5.0",
+  "description": "high level utilities for firebase interaction",
   "main": "dist/lib/index.js",
   "scripts": {
     "test": "rimraf dist && tslint lib/*.ts tests/**/*.ts && tsc && tap dist/tests/*.js",
-    "cover": "nyc tape dist/tests/*.js"
+    "cover": "nyc tape dist/tests/*.js",
+    "coveralls": "nyc tape dist/tests/*.js && nyc report --reporter=text-lcov | coveralls"
   },
-  "author": "",
+  "author": {
+    "name": "Victor Kotseruba",
+    "url": "https://github.com/barbuza"
+  },
   "license": "ISC",
   "peerDependencies": {
     "immutable": "^3.8.1"
   },
   "devDependencies": {
+    "coveralls": "^2.11.9",
     "faucet": "0.0.1",
     "immutable": "^3.8.1",
     "nyc": "^6.6.1",
