@@ -22,10 +22,7 @@ class ReduxEmitter<S, K, V> {
     const newKey = this._config.key(state);
     if (!Immutable.is(newKey, this._key)) {
       this._key = newKey;
-
-      if (this._ref) {
-        this._ref.off('value', this._onValue, this);
-      }
+      const oldRef = this._ref;
 
       if (typeof newKey === 'undefined') {
         this._ref = undefined;
@@ -35,6 +32,10 @@ class ReduxEmitter<S, K, V> {
 
       if (this._ref) {
         this._ref.on('value', this._onValue, this);
+      }
+
+      if (oldRef) {
+        oldRef.off('value', this._onValue, this);
       }
     }
   }
