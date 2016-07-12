@@ -1,4 +1,4 @@
-import { Reducer, Action, StoreEnhancer, StoreEnhancerStoreCreator } from 'redux';
+import { Reducer, Dispatch, Action, StoreEnhancer, StoreEnhancerStoreCreator } from 'redux';
 import * as Immutable from 'immutable';
 
 export interface IReduxEmitterConfig<S, K, V> {
@@ -9,11 +9,11 @@ export interface IReduxEmitterConfig<S, K, V> {
 
 class ReduxEmitter<S, K, V> {
   private _config: IReduxEmitterConfig<S, K, V>;
-  private _dispatch: (action: Action) => void;
+  private _dispatch: Dispatch<S>;
   private _key: K | undefined = undefined;
   private _ref: kebakaran.IRef<V> | undefined = undefined;
 
-  constructor(config: IReduxEmitterConfig<S, K, V>, dispatch: (action: Action) => void) {
+  constructor(config: IReduxEmitterConfig<S, K, V>, dispatch: Dispatch<S>) {
     this._config = config;
     this._dispatch = dispatch;
   }

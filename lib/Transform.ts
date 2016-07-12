@@ -16,6 +16,16 @@ export class Transform<F, T> extends Emitter<T> {
     });
   }
 
+  public static values<T>(ref: kebakaran.IRef<kebakaran.INestedSnapshot<T>>): kebakaran.IRef<Array<T>> {
+    return new Transform<kebakaran.INestedSnapshot<T>, Array<T>>(ref, snapshot => {
+      const result: Array<T> = [];
+      snapshot.forEach(child => {
+        result.push(child.val());
+      });
+      return result;
+    });
+  }
+
   public static val<T>(ref: kebakaran.IRef<kebakaran.ISnapshot<T>>): kebakaran.IRef<T> {
     return new Transform<kebakaran.ISnapshot<T>, T>(ref, snapshot => snapshot.val());
   }

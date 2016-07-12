@@ -1,5 +1,5 @@
 import * as tape from 'tape';
-import { Action, Store, createStore } from 'redux';
+import { Action, Dispatch, Store, createStore } from 'redux';
 import { enhancer, IReduxEmitterConfig } from '../lib/redux';
 import { RefMock } from './support/RefMock';
 
@@ -31,13 +31,13 @@ tape('redux', (t: tape.Test) => {
   const command: IReduxEmitterConfig<IReduxState, boolean, string> = {
     key: (state: IReduxState) => state.enabled || undefined,
     ref: () => commandRef,
-    dispatch: (dispatch: (action: Action) => void, type: string) => dispatch({ type })
+    dispatch: (dispatch: Dispatch<IReduxState>, type: string) => dispatch({ type })
   };
 
   const enabler: IReduxEmitterConfig<IReduxState, boolean, undefined> = {
     key: (state: IReduxState) => state.enabled ? undefined : true,
     ref: () => enablerRef,
-    dispatch: (dispatch: (action: Action) => void, value: undefined) => dispatch({ type: 'ENABLE' })
+    dispatch: (dispatch: Dispatch<IReduxState>, value: undefined) => dispatch({ type: 'ENABLE' })
   };
 
   const store: Store<IReduxState> = enhancer([command, enabler])(createStore)(reducer);
