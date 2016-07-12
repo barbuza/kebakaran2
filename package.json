@@ -15,7 +15,7 @@
     "immutable": "^3.8.1"
   },
   "devDependencies": {
-    "coveralls": "^2.11.9",
+    "coveralls": "^2.11.11",
     "immutable": "^3.8.1",
     "istanbul-instrumenter-loader": "^0.2.0",
     "json-loader": "^0.5.4",
