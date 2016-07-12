@@ -1,4 +1,4 @@
-import * as tape from 'tape';
+import * as assert from 'power-assert';
 import { List, Transform, Struct, Equal } from '../lib';
 import { RefMock } from './support/RefMock';
 import { SnapshotMock } from './support/SnapshotMock';
@@ -139,33 +139,34 @@ function makeFixture(): IFixture {
   };
 }
 
-tape('Complex', (t: tape.Test) => {
-  const fixture: IFixture = makeFixture();
+describe('Complex', () => {
+  it('all parts should work together', (done) => {
+    const fixture: IFixture = makeFixture();
 
-  new Equal(fixture.users).on('value', users => {
-    t.deepEqual(users, expectedData);
-    t.end();
+    new Equal(fixture.users).on('value', users => {
+      assert.deepEqual(users, expectedData);
+      done();
+    });
+
+    fixture.userListRef.fakeEmit(new NestedSnapshotMock('userLid', Object.keys(fixtureData.users).map((userId: string) =>
+      new SnapshotMock(userId, true)
+    )));
+
+    Object.keys(fixtureData.users).forEach(userId => {
+
+      fixture.firstNameRefs[parseInt(userId, 10)].fakeEmit(
+        new SnapshotMock('firstName', fixtureData.users[userId].firstName)
+      );
+
+      fixture.tagsListRefs[parseInt(userId, 10)].fakeEmit(
+        new NestedSnapshotMock('tags', Object.keys(fixtureData.users[userId].tags).map((tagId: string) =>
+          new SnapshotMock(tagId, true)
+        ))
+      );
+    });
+
+    Object.keys(fixtureData.tags).forEach(tagId => {
+      fixture.tagNameRefs[parseInt(tagId, 10)].fakeEmit(new SnapshotMock('name', fixtureData.tags[tagId]));
+    });
   });
-
-  fixture.userListRef.fakeEmit(new NestedSnapshotMock('userLid', Object.keys(fixtureData.users).map((userId: string) =>
-    new SnapshotMock(userId, true)
-  )));
-
-  Object.keys(fixtureData.users).forEach(userId => {
-
-    fixture.firstNameRefs[parseInt(userId, 10)].fakeEmit(
-      new SnapshotMock('firstName', fixtureData.users[userId].firstName)
-    );
-
-    fixture.tagsListRefs[parseInt(userId, 10)].fakeEmit(
-      new NestedSnapshotMock('tags', Object.keys(fixtureData.users[userId].tags).map((tagId: string) =>
-        new SnapshotMock(tagId, true)
-      ))
-    );
-  });
-
-  Object.keys(fixtureData.tags).forEach(tagId => {
-    fixture.tagNameRefs[parseInt(tagId, 10)].fakeEmit(new SnapshotMock('name', fixtureData.tags[tagId]));
-  });
-
 });

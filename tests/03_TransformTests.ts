@@ -1,59 +1,62 @@
-import * as tape from 'tape';
+import * as assert from 'power-assert';
 import { RefMock } from './support/RefMock';
 import { Transform } from '../lib/Transform';
 import { NestedSnapshotMock } from './support/NestedSnapshotMock';
 import { SnapshotMock } from './support/SnapshotMock';
 
-tape('Transform basic', (t: tape.Test) => {
-  const foo = new RefMock<number>();
-  const transform = new Transform<number, number>(foo, x => x + 1);
+describe('Transform', () => {
+  it('should apply basic transformation', () => {
+    const foo = new RefMock<number>();
+    const transform = new Transform<number, number>(foo, x => x + 1);
 
-  let val: number | undefined = undefined;
+    let val: number | undefined = undefined;
 
-  const listener = (value: number) => {
-    val = value;
-  };
+    const listener = (value: number) => {
+      val = value;
+    };
 
-  transform.on('value', listener);
-  t.true(foo.isOpen);
+    transform.on('value', listener);
+    assert.ok(foo.isOpen);
 
-  foo.fakeEmit(1);
-  t.equal(val, 2);
+    foo.fakeEmit(1);
+    assert.equal(val, 2);
 
-  transform.off('value', listener);
-  t.false(foo.isOpen);
-
-  t.end();
-});
-
-tape('Transform keys', (t: tape.Test) => {
-  const foo = new RefMock<NestedSnapshotMock<boolean>>();
-  const transform = Transform.keys(foo);
-
-  t.plan(1);
-
-  transform.on('value', value => {
-    t.deepEqual(value, ['foo', 'bar']);
+    transform.off('value', listener);
+    assert.ok(!foo.isOpen);
   });
 
-  foo.fakeEmit(new NestedSnapshotMock<boolean>('parent', [
-    new SnapshotMock<boolean>('foo', true),
-    new SnapshotMock<boolean>('bar', true)
-  ]));
-});
+  it('should extract keys with static `keys` method', () => {
+    const foo = new RefMock<NestedSnapshotMock<boolean>>();
+    const transform = Transform.keys(foo);
 
-tape('Transform values', (t: tape.Test) => {
-  const foo = new RefMock<NestedSnapshotMock<string>>();
-  const transform = Transform.values(foo);
+    let value: Array<string>| undefined = undefined;
 
-  t.plan(1);
+    transform.on('value', val => {
+      value = val;
+    });
 
-  transform.on('value', value => {
-    t.deepEqual(value, ['foo', 'bar']);
+    foo.fakeEmit(new NestedSnapshotMock<boolean>('parent', [
+      new SnapshotMock<boolean>('foo', true),
+      new SnapshotMock<boolean>('bar', true)
+    ]));
+
+    assert.deepEqual(value, ['foo', 'bar']);
   });
 
-  foo.fakeEmit(new NestedSnapshotMock<string>('parent', [
-    new SnapshotMock<string>('0', 'foo'),
-    new SnapshotMock<string>('1', 'bar')
-  ]));
+  it('should extract values with static `values` method', () => {
+    const foo = new RefMock<NestedSnapshotMock<string>>();
+    const transform = Transform.values(foo);
+    let value: Array<string> | undefined = undefined;
+
+    transform.on('value', val => {
+      value = val;
+    });
+
+    foo.fakeEmit(new NestedSnapshotMock<string>('parent', [
+      new SnapshotMock<string>('0', 'foo'),
+      new SnapshotMock<string>('1', 'bar')
+    ]));
+
+    assert.deepEqual(value, ['foo', 'bar']);
+  });
 });

@@ -1,23 +1,30 @@
-import * as tape from 'tape';
+import * as assert from 'power-assert';
 import { Equal } from '../lib/Equal';
 import { RefMock } from './support/RefMock';
 
-tape('Equal basic', (t: tape.Test) => {
-  const ref = new RefMock<Array<string>>();
-  const eq = new Equal<Array<string>>(ref);
+describe('Equal', () => {
+  it('should emit once for similar values', () => {
+    const ref = new RefMock<Array<string>>();
+    const eq = new Equal<Array<string>>(ref);
 
-  t.plan(2);
+    let value: Array<string> | undefined = undefined;
+    let count: number = 0;
 
-  const listener = (value: Array<string>) => {
-    t.deepEqual(value, ['foo', 'bar']);
-  };
+    const listener = (val: Array<string>) => {
+      value = val;
+      count += 1;
+    };
 
-  eq.on('value', listener);
+    eq.on('value', listener);
 
-  ref.fakeEmit(['foo', 'bar']);
-  ref.fakeEmit(['foo', 'bar']);
+    ref.fakeEmit(['foo', 'bar']);
+    ref.fakeEmit(['foo', 'bar']);
 
-  eq.off('value', listener);
+    assert.deepEqual(value, ['foo', 'bar']);
+    assert.equal(count, 1);
 
-  t.false(ref.isOpen);
+    eq.off('value', listener);
+
+    assert.ok(!ref.isOpen);
+  });
 });

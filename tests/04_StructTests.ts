@@ -1,123 +1,122 @@
-import * as tape from 'tape';
+import * as assert from 'power-assert';
 import { Struct } from '../lib/Struct';
 import { RefMock } from './support/RefMock';
 
-tape('Struct basic', (t: tape.Test) => {
-  const foo = new RefMock<string>();
-  const bar = new RefMock<number>();
+describe('Struct', () => {
+  it('should work with flat refs', () => {
+    const foo = new RefMock<string>();
+    const bar = new RefMock<number>();
 
-  interface IStructValue {
-    foo: string;
-    bar: number;
-  }
+    interface IStructValue {
+      foo: string;
+      bar: number;
+    }
 
-  const struct = new Struct<IStructValue>({ foo, bar });
+    const struct = new Struct<IStructValue>({ foo, bar });
 
-  t.false(foo.isOpen);
-  t.false(bar.isOpen);
+    assert.ok(!foo.isOpen);
+    assert.ok(!foo.isOpen);
 
-  let val: IStructValue | undefined = undefined;
+    let val: IStructValue | undefined = undefined;
 
-  const listener = (value: IStructValue) => {
-    val = value;
-  };
+    const listener = (value: IStructValue) => {
+      val = value;
+    };
 
-  struct.on('value', listener);
+    struct.on('value', listener);
 
-  t.true(foo.isOpen);
-  t.true(bar.isOpen);
+    assert.ok(foo.isOpen);
+    assert.ok(foo.isOpen);
 
-  foo.fakeEmit('spam');
+    foo.fakeEmit('spam');
 
-  t.false(val);
+    assert.ok(!val);
 
-  bar.fakeEmit(1);
+    bar.fakeEmit(1);
 
-  t.deepEqual(val, { foo: 'spam', bar: 1 });
+    assert.deepEqual(val, { foo: 'spam', bar: 1 });
 
-  struct.off('value', listener);
+    struct.off('value', listener);
 
-  t.false(foo.isOpen);
-  t.false(bar.isOpen);
+    assert.ok(!foo.isOpen);
+    assert.ok(!bar.isOpen);
 
-  val = undefined;
+    val = undefined;
 
-  struct.on('value', listener);
+    struct.on('value', listener);
 
-  t.deepEqual(val, { foo: 'spam', bar: 1 });
+    assert.deepEqual(val, { foo: 'spam', bar: 1 });
 
-  struct.off('value', listener);
-  foo.resetValue();
-  bar.resetValue();
+    struct.off('value', listener);
+    foo.resetValue();
+    bar.resetValue();
 
-  val = undefined;
+    val = undefined;
 
-  struct.on('value', listener);
+    struct.on('value', listener);
 
-  t.false(val);
+    assert.ok(!val);
+  });
 
-  t.end();
-});
+  it('should work with nested structs', () => {
+    const foo = new RefMock<string>();
 
-tape('Struct nested', (t: tape.Test) => {
-  const foo = new RefMock<string>();
+    interface IChildValue {
+      foo: string;
+    }
 
-  interface IChildValue {
-    foo: string;
-  }
+    interface IParentValue {
+      child: IChildValue;
+    }
 
-  interface IParentValue {
-    child: IChildValue;
-  }
+    const child = new Struct<IChildValue>({ foo });
+    const parent = new Struct<IParentValue>({ child });
 
-  const child = new Struct<IChildValue>({ foo });
-  const parent = new Struct<IParentValue>({ child });
+    assert.ok(!foo.isOpen);
 
-  t.false(foo.isOpen);
+    let val: IParentValue | undefined = undefined;
 
-  let val: IParentValue | undefined = undefined;
+    const listener = (value: IParentValue) => {
+      val = value;
+    };
 
-  const listener = (value: IParentValue) => {
-    val = value;
-  };
+    parent.on('value', listener);
 
-  parent.on('value', listener);
+    foo.fakeEmit('bar');
 
-  foo.fakeEmit('bar');
+    assert.deepEqual(val, { child: { foo: 'bar' } });
 
-  t.deepEqual(val, { child: { foo: 'bar' } });
+    parent.off('value', listener);
 
-  parent.off('value', listener);
+    assert.ok(!foo.isOpen);
+  });
 
-  t.false(foo.isOpen);
+  it('should work with `once` listeners', () => {
+    const foo = new RefMock<string>();
+    const bar = new RefMock<number>();
 
-  t.end();
-});
+    interface IStructValue {
+      foo: string;
+      bar: number;
+    }
 
-tape('Struct once', (t: tape.Test) => {
+    const struct = new Struct<IStructValue>({ foo, bar });
 
-  const foo = new RefMock<string>();
-  const bar = new RefMock<number>();
+    foo.fakeEmit('spam');
+    bar.fakeEmit(1);
 
-  interface IStructValue {
-    foo: string;
-    bar: number;
-  }
+    let value: IStructValue| undefined = undefined;
 
-  const struct = new Struct<IStructValue>({ foo, bar });
+    struct.once('value', val => {
+      value = val;
+    });
 
-  foo.fakeEmit('spam');
-  bar.fakeEmit(1);
-
-  t.plan(3);
-
-  struct.once('value', val => {
-    t.deepEqual(val, {
+    assert.deepEqual(value, {
       foo: 'spam',
       bar: 1
     });
-  });
 
-  t.false(foo.isOpen);
-  t.false(bar.isOpen);
+    assert.ok(!foo.isOpen);
+    assert.ok(!bar.isOpen);
+  });
 });

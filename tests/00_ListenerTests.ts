@@ -1,17 +1,18 @@
-import * as tape from 'tape';
+import * as assert from 'power-assert';
 import { Listener } from '../lib/Listener';
 
-tape('Listener', (t: tape.Test) => {
-  t.plan(4);
+describe('Listener', () => {
+  it('stores context as undefined', () => {
+    const ok = new Listener<string>(value => assert.equal(value, 'foo'), null);
+    assert.equal(ok.getContext(), null);
+    ok.call('foo');
+  });
 
-  const ok = new Listener<string>(value => t.equal(value, 'foo'), null);
-  t.is(ok.getContext(), undefined);
-  ok.call('foo');
-
-  const fail = new Listener<string>(value => t.equal(value, 'foo'), null, true);
-  fail.call('foo');
-
-  t.throws(() => {
-    fail.call('var');
-  }, /twice/);
+  it('handles once param', () => {
+    const fail = new Listener<string>(value => assert.equal(value, 'foo'), null, true);
+    fail.call('foo');
+    assert.throws(() => {
+      fail.call('bar');
+    }, /twice/);
+  });
 });
