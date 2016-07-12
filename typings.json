@@ -4,6 +4,7 @@
     "tape": "registry:npm/tape#4.0.0+20160622192935"
   },
   "globalDependencies": {
-    "node": "registry:env/node#6.0.0+20160622202520"
+    "node": "registry:env/node#6.0.0+20160622202520",
+    "redux": "registry:dt/redux#3.5.2+20160703092728"
   }
 }
