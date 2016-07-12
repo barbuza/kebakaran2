@@ -41,14 +41,14 @@ export class Transform<F, T> extends Emitter<T> {
   }
 
   protected _subscribe(): void {
-    this._ref.on('value', this.onRefValue, this);
+    this._ref.on('value', this._onRefValue, this);
   }
 
   protected _close(): void {
-    this._ref.off('value', this.onRefValue, this);
+    this._ref.off('value', this._onRefValue, this);
   }
 
-  private onRefValue(value: F) {
+  private _onRefValue(value: F) {
     this._data = this._transform(value);
     this._hasData = true;
     this._emit();
