@@ -1,3 +1,4 @@
+export { Emitter } from './Emitter';
 export { List } from './List';
 export { Struct } from './Struct';
 export { Equal } from './Equal';

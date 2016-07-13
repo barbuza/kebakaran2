@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "firebase": "registry:npm/firebase#3.0.5+20160705215914",
     "immutable": "registry:npm/immutable#3.7.6+20160411060006",
     "tape": "registry:npm/tape#4.0.0+20160622192935"
   },

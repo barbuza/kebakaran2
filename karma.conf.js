@@ -3,7 +3,7 @@ if (process.env.TRAVIS && /v6\./.test(process.version)) {
   coveralls = true;
 }
 
-var reporters = ['dots', 'coverage'];
+var reporters = ['progress', 'coverage'];
 if (coveralls) {
   reporters.push('coveralls');
 }
@@ -56,7 +56,8 @@ module.exports = function (config) {
       }
     },
     webpackMiddleware: {
-      noInfo: true
+      noInfo: true,
+      stats: 'minimal'
     }
   });
 };

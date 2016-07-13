@@ -1,14 +1,14 @@
 declare namespace kebakaran {
 
   interface IRef<T> {
-    on(name: string, listener: (value: T) => void, context?: any): this;
-    once(name: string, listener: (value: T) => void, context?: any): this;
-    off(name: string, listener: (value: T) => void, context?: any): this;
+    on(name: string, listener: (value: T) => void, context?: any): (value: T) => void;
+    once(name: string, listener: (value: T) => void, context?: any): any;
+    off(name: string, listener: (value: T) => void, context?: any): any;
   }
 
   interface ISnapshot<T> {
+    key: string;
     val(): T;
-    key(): string;
   }
 
   interface INestedSnapshot<T> extends ISnapshot<Array<ISnapshot<T>>> {

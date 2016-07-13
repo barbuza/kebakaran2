@@ -1,19 +1,16 @@
 export class SnapshotMock<T> implements kebakaran.ISnapshot<T> {
 
-  private value: T;
-  private _key: string;
+  public key: string;
 
-  constructor(key: string, value: T) {
-    this._key = key;
-    this.value = value;
+  private _val: T;
+
+  constructor(key: string, val: T) {
+    this.key = key;
+    this._val = val;
   }
 
   public val(): T {
-    return this.value;
-  }
-
-  public key(): string {
-    return this._key;
+    return this._val;
   }
 
 }

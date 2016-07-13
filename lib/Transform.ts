@@ -10,7 +10,7 @@ export class Transform<F, T> extends Emitter<T> {
     return new Transform<kebakaran.INestedSnapshot<any>, Array<string>>(ref, snapshot => {
       const result: Array<string> = [];
       snapshot.forEach(child => {
-        result.push(child.key());
+        result.push(child.key);
       });
       return result;
     });

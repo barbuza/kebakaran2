@@ -14,7 +14,7 @@ export abstract class Emitter<T> implements kebakaran.IRef<T> {
   private _onceListeners: Array<Listener<T>> = [];
   private _listeners: Array<Listener<T>> = [];
 
-  public on(name: string, listener: (value: T) => void, context?: any): this {
+  public on(name: string, listener: (value: T) => void, context?: any): (value: T) => void {
     assertName(name);
 
     this._addListener(listener, context);
@@ -23,7 +23,7 @@ export abstract class Emitter<T> implements kebakaran.IRef<T> {
     }
     this._subscribeIfNeeded();
 
-    return this;
+    return listener;
   }
 
   public off(name: string, listener: (value: T) => void, context?: any): this {
