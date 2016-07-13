@@ -1,4 +1,4 @@
-# kebakaran
+# kebakaran [![Build Status](https://travis-ci.org/barbuza/kebakaran2.svg?branch=master)](https://travis-ci.org/barbuza/kebakaran2) [![Coverage Status](https://coveralls.io/repos/github/barbuza/kebakaran2/badge.svg?branch=master)](https://coveralls.io/github/barbuza/kebakaran2?branch=master)
 
 strongly typed high level utilities for consuming data from firebase
 
