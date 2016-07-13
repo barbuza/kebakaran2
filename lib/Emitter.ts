@@ -1,3 +1,4 @@
+import { Promise } from 'es6-promise';
 import { Listener } from './Listener';
 
 function assertName(name: string): void {
@@ -5,6 +6,8 @@ function assertName(name: string): void {
     throw new Error(`unknown event '${name}'`);
   }
 }
+
+const noop = () => undefined;
 
 export abstract class Emitter<T> implements kebakaran.IRef<T> {
 
@@ -35,17 +38,21 @@ export abstract class Emitter<T> implements kebakaran.IRef<T> {
     return this;
   }
 
-  public once(name: string, listener: (value: T) => void, context?: any): this {
+  public once(name: string, callback?: (value: T) => void, context?: any): Promise<T> {
     assertName(name);
 
-    if (this._ready()) {
-      listener.call(context, this._data);
-    } else {
-      this._addListener(listener, context, true);
-      this._subscribeIfNeeded();
+    if (!callback) {
+      callback = noop;
     }
 
-    return this;
+    if (this._ready()) {
+      callback.call(context, this._data);
+      return Promise.resolve(this._data);
+    }
+
+    const listener = this._addListener(callback, context, true);
+    this._subscribeIfNeeded();
+    return listener.getPromise();
   }
 
   protected abstract _ready(): boolean;
@@ -75,12 +82,14 @@ export abstract class Emitter<T> implements kebakaran.IRef<T> {
     }
   }
 
-  private _addListener(listener: (value: T) => void, context: any, once?: boolean): void {
+  private _addListener(callback: (value: T) => void, context: any, once?: boolean): Listener<T> {
+    const listener = new Listener<T>(callback, context, once);
     if (once) {
-      this._onceListeners.push(new Listener<T>(listener, context, true));
+      this._onceListeners.push(listener);
     } else {
-      this._listeners.push(new Listener<T>(listener, context));
+      this._listeners.push(listener);
     }
+    return listener;
   }
 
   private _removeListener(listener: (value: T) => void, context: any): void {

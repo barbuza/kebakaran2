@@ -48,4 +48,26 @@ describe('Emitter', () => {
       emitter.on('spam', () => null);
     }, /unknown event/);
   });
+
+  it('should work with promices', done => {
+    const emitter = new RefMock<string>();
+
+    emitter.once('value').then(value => {
+      assert.equal(value, 'foo');
+      done();
+    });
+
+    emitter.fakeEmit('foo');
+  });
+
+  it('should work with promises in instant mode', done => {
+    const emitter = new RefMock<string>();
+
+    emitter.fakeEmit('foo');
+
+    emitter.once('value').then(value => {
+      assert.equal(value, 'foo');
+      done();
+    });
+  });
 });
