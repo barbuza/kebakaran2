@@ -3,4 +3,4 @@ export { List } from './List';
 export { Struct } from './Struct';
 export { Equal } from './Equal';
 export { Transform } from './Transform';
-export { enhancer } from './redux';
+export { enhancer, IReduxEmitterConfig } from './redux';
