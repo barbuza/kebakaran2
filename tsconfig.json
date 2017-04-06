@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
+    "outDir": "lib",
     "module": "commonjs",
-    "target": "es3",
+    "target": "es5",
     "noImplicitReturns": true,
     "noImplicitAny": true,
     "suppressImplicitAnyIndexErrors": true,
@@ -12,11 +12,15 @@
     "sourceMap": true,
     "removeComments": true,
     "strictNullChecks": true,
-    "noImplicitThis": true
+    "noImplicitThis": true,
+    "types": [
+      "jest",
+      "node"
+    ]
   },
-  "filesGlob": [
-    "typings/",
-    "lib/",
-    "tests/"
+  "exclude": [
+    "node_modules",
+    "tests",
+    "lib"
   ]
 }

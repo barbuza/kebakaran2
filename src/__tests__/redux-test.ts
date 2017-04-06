@@ -1,10 +1,9 @@
-import * as assert from 'power-assert';
-import { Action, Dispatch, Store, createStore } from 'redux';
-import { enhancer, IReduxEmitterConfig } from '../lib/redux';
-import { RefMock } from './support/RefMock';
+import { Action, createStore, Dispatch, Store } from "redux";
+import { enhancer, IReduxEmitterConfig } from "../redux";
+import { RefMock } from "./support/RefMock";
 
-describe('redux ehancer', () => {
-  it('should handle running state', () => {
+describe("redux ehancer", () => {
+  it("should handle running state", () => {
     interface IReduxState {
       counter: number;
       enabled: boolean;
@@ -12,13 +11,13 @@ describe('redux ehancer', () => {
 
     function reducer(state: IReduxState = { counter: 0, enabled: true }, action: Action): IReduxState {
       switch (action.type) {
-        case 'INC':
+        case "INC":
           return { counter: state.counter + 1, enabled: state.enabled };
-        case 'DEC':
+        case "DEC":
           return { counter: state.counter - 1, enabled: state.enabled };
-        case 'ENABLE':
+        case "ENABLE":
           return { counter: state.counter, enabled: true };
-        case 'DISABLE':
+        case "DISABLE":
           return { counter: state.counter, enabled: false };
         default:
           return state;
@@ -29,46 +28,46 @@ describe('redux ehancer', () => {
     const enablerRef = new RefMock<void>();
 
     const command: IReduxEmitterConfig<IReduxState, boolean, string> = {
+      dispatch: (dispatch: Dispatch<IReduxState>, type: string) => dispatch({ type }),
       key: (state: IReduxState) => state.enabled || undefined,
       ref: () => commandRef,
-      dispatch: (dispatch: Dispatch<IReduxState>, type: string) => dispatch({ type })
     };
 
     const enabler: IReduxEmitterConfig<IReduxState, boolean, undefined> = {
+      dispatch: (dispatch: Dispatch<IReduxState>, value: undefined) => dispatch({ type: "ENABLE" }),
       key: (state: IReduxState) => state.enabled ? undefined : true,
       ref: () => enablerRef,
-      dispatch: (dispatch: Dispatch<IReduxState>, value: undefined) => dispatch({ type: 'ENABLE' })
     };
 
     const store: Store<IReduxState> = enhancer([command, enabler])(createStore)(reducer);
-    assert.ok(commandRef.isOpen);
-    assert.ok(!enablerRef.isOpen);
+    expect(commandRef.isOpen).toBe(true);
+    expect(enablerRef.isOpen).toBe(false);
 
     let state: IReduxState = store.getState();
     store.subscribe(() => {
       state = store.getState();
     });
 
-    commandRef.fakeEmit('INC');
-    assert.equal(state.counter, 1);
+    commandRef.fakeEmit("INC");
+    expect(state.counter).toBe(1);
 
-    commandRef.fakeEmit('DEC');
-    assert.equal(state.counter, 0);
+    commandRef.fakeEmit("DEC");
+    expect(state.counter).toBe(0);
 
-    commandRef.fakeEmit('DISABLE');
-    assert.ok(!commandRef.isOpen);
+    commandRef.fakeEmit("DISABLE");
+    expect(commandRef.isOpen).toBe(false);
 
-    commandRef.fakeEmit('ENABLE');
-    assert.ok(!commandRef.isOpen);
+    commandRef.fakeEmit("ENABLE");
+    expect(commandRef.isOpen).toBe(false);
 
-    commandRef.fakeEmit('INC');
-    assert.equal(state.counter, 0);
+    commandRef.fakeEmit("INC");
+    expect(state.counter).toBe(0);
 
-    commandRef.fakeEmit('DEC');
-    assert.equal(state.counter, 0);
+    commandRef.fakeEmit("DEC");
+    expect(state.counter).toBe(0);
 
     enablerRef.fakeEmit(undefined);
-    assert.ok(commandRef.isOpen);
-    assert.equal(state.counter, -1);
+    expect(commandRef.isOpen).toBe(true);
+    expect(state.counter).toBe(-1);
   });
 });
