@@ -28,22 +28,21 @@ may be accessed like that
 ### Struct
 
 ```typescript
-import { Struct, Transform } from 'kebakaran';
+import { Struct, Transform } from "kebakaran";
+
+const database = firebase.database();
 
 interface IUserData {
-  name: string | undefined;
   age: number | undefined;
+  name: string | undefined;
 }
 
-const nameRef = database.ref('names').child('1');
-const ageRef = database.ref('ages').child('1');
-
 const struct = new Struct<IUserData>({
-  name: Transform.val<string>(nameRef),
-  age: Transform.val<number>(ageRef)
+  age: Transform.val<number>(database.ref("ages").child("1") as any),
+  name: Transform.val<string>(database.ref("names").child("1") as any),
 });
 
-struct.on('value', (value: IUserData) => {
+struct.on("value", (value: IUserData) => {
   // handle data
 });
 ```
@@ -51,11 +50,13 @@ struct.on('value', (value: IUserData) => {
 ### List
 
 ```typescript
-import { Transform, Struct, List, Emitter } from 'kebakaran';
+import { Emitter, List, Struct, Transform } from "kebakaran";
+
+const database = firebase.database();
 
 interface IUserData {
-  name: string | undefined;
   age: number | undefined;
+  name: string | undefined;
 }
 
 interface IUser extends IUserData {
@@ -64,23 +65,23 @@ interface IUser extends IUserData {
 
 function makeUserData(userId: string): Emitter<IUserData> {
   return new Struct<IUserData>({
-    name: Transform.val<string>(database.ref('names').child(userId)),
-    age: Transform.val<number>(database.ref('ages').child(userId))
+    age: Transform.val<number>(database.ref("ages").child(userId) as any),
+    name: Transform.val<string>(database.ref("names").child(userId) as any),
   });
 }
 
 function makeUser(userId: string): Emitter<IUser> {
-  return new Transform<IUserData, IUser>(makeUserData(userId), userData => ({
+  return new Transform<IUserData, IUser>(makeUserData(userId), (userData) => ({
+    age: userData.age,
     id: parseInt(userId, 10),
     name: userData.name,
-    age: userData.age
   }));
 }
 
-const userListRef = Transform.keys(database.ref('users'));
+const userListRef = Transform.keys(database.ref("users") as any);
 const list = new List<string, IUser>(userListRef, makeUser);
 
-list.on('value', (value: Array<IUser>) => {
+list.on("value", (value: IUser[]) => {
   // handle data
 });
 ```
