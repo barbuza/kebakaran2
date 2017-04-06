@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "tslint -p tsconfig.json",
     "test": "jest",
-    "build": "rimraf lib && tslint -p tsconfig.json && tsc && jest && rimraf lib/__tests__"
+    "build": "rimraf lib && tslint -p tsconfig.json && tsc && jest --coverage && rimraf lib/__tests__"
   },
   "author": {
     "name": "Victor Kotseruba",
@@ -20,6 +20,7 @@
     "@types/firebase": "^2.4.31",
     "@types/jest": "^19.2.2",
     "@types/node": "^7.0.12",
+    "coveralls": "^2.13.0",
     "firebase": "^3.7.5",
     "immutable": "^3.8.1",
     "jest": "^19.0.2",
@@ -47,6 +48,10 @@
     "transform": {
       "\\.ts$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
-    "testResultsProcessor": "<rootDir>/node_modules/ts-jest/coverageprocessor.js"
+    "testResultsProcessor": "<rootDir>/node_modules/ts-jest/coverageprocessor.js",
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/__tests__/**/*.ts"
+    ]
   }
 }
