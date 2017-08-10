@@ -26,8 +26,8 @@ const usersData = [
 
 function makeUserData(userId: string): Emitter<IUserData> {
   return new Struct<IUserData>({
-    age: Transform.val<number>(database.ref("ages").child(userId) as any),
-    name: Transform.val<string>(database.ref("names").child(userId) as any),
+    age: Transform.val(database.ref("ages").child(userId)),
+    name: Transform.val(database.ref("names").child(userId)),
   });
 }
 
@@ -53,7 +53,7 @@ describe("Firebase", () => {
   });
 
   it("should be compatible with List", () => {
-    const userListRef = Transform.keys(database.ref("users") as any);
+    const userListRef = Transform.keys(database.ref("users"));
     const list = new List<string, IUser>(userListRef, makeUser);
 
     return list.once("value").then((value) => {
@@ -85,7 +85,7 @@ describe("Firebase", () => {
     const configs = [{
       dispatch: (dispatch: Dispatch<IReduxState>, users: IUser[]) => dispatch({ type: "SET_USERS", users }),
       key: (state: IReduxState) => state.users ? undefined : true,
-      ref: () => new List(Transform.keys(database.ref("users") as any), makeUser),
+      ref: () => new List(Transform.keys(database.ref("users")), makeUser),
     }];
 
     const store: Store<IReduxState> = enhancer<IReduxState>(configs)(createStore)(reducer);

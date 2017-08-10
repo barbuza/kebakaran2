@@ -38,8 +38,8 @@ interface IUserData {
 }
 
 const struct = new Struct<IUserData>({
-  age: Transform.val<number>(database.ref("ages").child("1") as any),
-  name: Transform.val<string>(database.ref("names").child("1") as any),
+  age: Transform.val(database.ref("ages").child("1")),
+  name: Transform.val(database.ref("names").child("1")),
 });
 
 struct.on("value", (value: IUserData) => {
@@ -65,8 +65,8 @@ interface IUser extends IUserData {
 
 function makeUserData(userId: string): Emitter<IUserData> {
   return new Struct<IUserData>({
-    age: Transform.val<number>(database.ref("ages").child(userId) as any),
-    name: Transform.val<string>(database.ref("names").child(userId) as any),
+    age: Transform.val(database.ref("ages").child(userId)),
+    name: Transform.val(database.ref("names").child(userId)),
   });
 }
 
@@ -78,7 +78,7 @@ function makeUser(userId: string): Emitter<IUser> {
   }));
 }
 
-const userListRef = Transform.keys(database.ref("users") as any);
+const userListRef = Transform.keys(database.ref("users"));
 const list = new List<string, IUser>(userListRef, makeUser);
 
 list.on("value", (value: IUser[]) => {
