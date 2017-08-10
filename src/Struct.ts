@@ -11,7 +11,7 @@ interface IFieldListeners {
 
 export class Struct<T> extends Emitter<T> {
 
-  protected data: T = {} as T;
+  protected data: T = {} as any;
 
   private unknownFields: string[] = [];
   private fieldListeners: IFieldListeners = {};
@@ -42,7 +42,7 @@ export class Struct<T> extends Emitter<T> {
   }
 
   protected close(): void {
-    this.data = {} as T;
+    this.data = {} as any;
     this.unknownFields = [];
     for (const name in this.fields) {
       if (this.fields.hasOwnProperty(name)) {

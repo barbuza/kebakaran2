@@ -130,11 +130,11 @@ function makeFixture(): IFixture {
   const users = new List<string, IUser>(userIdList, createUserStruct);
 
   return {
-    users,
-    userListRef,
     firstNameRefs,
-    tagsListRefs,
     tagNameRefs,
+    tagsListRefs,
+    userListRef,
+    users,
   };
 }
 

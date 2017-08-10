@@ -2,40 +2,61 @@ import { Action, createStore, Dispatch, Store } from "redux";
 import { enhancer, IReduxEmitterConfig } from "../redux";
 import { RefMock } from "./support/RefMock";
 
+interface IReduxState {
+  counter: number;
+  enabled: boolean;
+}
+
+interface IIncAction extends Action {
+  type: "INC";
+}
+
+interface IDecAction extends Action {
+  type: "DEC";
+}
+
+interface IEnableAction extends Action {
+  type: "ENABLE";
+}
+
+interface IDisableAction extends Action {
+  type: "DISABLE";
+}
+
+type IActionType = "INC" | "DEC" | "ENABLE" | "DISABLE";
+
+type IFinalAction = IIncAction | IDecAction | IEnableAction | IDisableAction;
+
 describe("redux ehancer", () => {
   it("should handle running state", () => {
-    interface IReduxState {
-      counter: number;
-      enabled: boolean;
-    }
 
-    function reducer(state: IReduxState = { counter: 0, enabled: true }, action: Action): IReduxState {
+    function reducer(st: IReduxState = { counter: 0, enabled: true }, action: IFinalAction): IReduxState {
       switch (action.type) {
         case "INC":
-          return { counter: state.counter + 1, enabled: state.enabled };
+          return { counter: st.counter + 1, enabled: st.enabled };
         case "DEC":
-          return { counter: state.counter - 1, enabled: state.enabled };
+          return { counter: st.counter - 1, enabled: st.enabled };
         case "ENABLE":
-          return { counter: state.counter, enabled: true };
+          return { counter: st.counter, enabled: true };
         case "DISABLE":
-          return { counter: state.counter, enabled: false };
+          return { counter: st.counter, enabled: false };
         default:
-          return state;
+          return st;
       }
     }
 
-    const commandRef = new RefMock<string>();
-    const enablerRef = new RefMock<void>();
+    const commandRef = new RefMock<IActionType>();
+    const enablerRef = new RefMock<undefined>();
 
     const command: IReduxEmitterConfig<IReduxState, boolean, string> = {
-      dispatch: (dispatch: Dispatch<IReduxState>, type: string) => dispatch({ type }),
-      key: (state: IReduxState) => state.enabled || undefined,
+      dispatch: (dispatch: Dispatch<IReduxState>, value: IActionType) => dispatch({ type: value }),
+      key: (st: IReduxState) => st.enabled || undefined,
       ref: () => commandRef,
     };
 
     const enabler: IReduxEmitterConfig<IReduxState, boolean, undefined> = {
       dispatch: (dispatch: Dispatch<IReduxState>, value: undefined) => dispatch({ type: "ENABLE" }),
-      key: (state: IReduxState) => state.enabled ? undefined : true,
+      key: (st: IReduxState) => st.enabled ? undefined : true,
       ref: () => enablerRef,
     };
 

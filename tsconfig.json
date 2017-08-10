@@ -16,6 +16,9 @@
     "types": [
       "jest",
       "node"
+    ],
+    "lib": [
+      "es2015"
     ]
   },
   "exclude": [

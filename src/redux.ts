@@ -5,7 +5,7 @@ import { IRef } from "./IRef";
 export interface IReduxEmitterConfig<S, K, V> {
   key(state: S): K | undefined;
   ref(key: K): IRef<V>;
-  dispatch(dispatch: (action: Action) => void, value: V): void;
+  dispatch(dispatch: Dispatch<S>, value: V): void;
 }
 
 class ReduxEmitter<S, K, V> {
@@ -25,11 +25,7 @@ class ReduxEmitter<S, K, V> {
       this.key = newKey;
       const oldRef = this.ref;
 
-      if (typeof newKey === "undefined") {
-        this.ref = undefined;
-      } else {
-        this.ref = this.config.ref(newKey);
-      }
+      this.ref = typeof newKey === "undefined" ? undefined : this.config.ref(newKey);
 
       if (this.ref) {
         this.ref.on("value", this.onValue, this);
@@ -54,9 +50,9 @@ export function enhancer<S>(configs: Array<IReduxEmitterConfig<S, any, any>>): S
       const emitters = configs.map((config) => new ReduxEmitter(config, store.dispatch));
 
       store.subscribe(() => {
-        const state = store.getState();
+        const newState = store.getState();
         emitters.forEach((emitter) => {
-          emitter.adopt(state);
+          emitter.adopt(newState);
         });
       });
 
