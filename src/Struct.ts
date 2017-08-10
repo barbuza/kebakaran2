@@ -20,10 +20,8 @@ export class Struct<T> extends Emitter<T> {
   constructor(fields: IStructFields) {
     super();
     this.fields = fields;
-    for (const name in this.fields) {
-      if (this.fields.hasOwnProperty(name)) {
-        this.unknownFields.push(name);
-      }
+    for (const name of Object.keys(this.fields)) {
+      this.unknownFields.push(name);
     }
   }
 
@@ -32,23 +30,19 @@ export class Struct<T> extends Emitter<T> {
   }
 
   protected subscribe(): void {
-    for (const name in this.fields) {
-      if (this.fields.hasOwnProperty(name)) {
-        const listener = this.onFieldValue.bind(this, name);
-        this.fieldListeners[name] = listener;
-        this.fields[name].on("value", listener);
-      }
+    for (const name of Object.keys(this.fields)) {
+      const listener = this.onFieldValue.bind(this, name);
+      this.fieldListeners[name] = listener;
+      this.fields[name].on("value", listener);
     }
   }
 
   protected close(): void {
     this.data = {} as any;
     this.unknownFields = [];
-    for (const name in this.fields) {
-      if (this.fields.hasOwnProperty(name)) {
-        this.unknownFields.push(name);
-        this.fields[name].off("value", this.fieldListeners[name]);
-      }
+    for (const name of Object.keys(this.fields)) {
+      this.unknownFields.push(name);
+      this.fields[name].off("value", this.fieldListeners[name]);
     }
     this.fieldListeners = {};
   }
