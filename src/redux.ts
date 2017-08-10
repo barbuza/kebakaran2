@@ -28,19 +28,18 @@ class ReduxEmitter<S, K, V> {
       this.ref = typeof newKey === "undefined" ? undefined : this.config.ref(newKey);
 
       if (this.ref) {
-        this.ref.on("value", this.onValue, this);
+        this.ref.on("value", this.onValue);
       }
 
       if (oldRef) {
-        oldRef.off("value", this.onValue, this);
+        oldRef.off("value", this.onValue);
       }
     }
   }
 
-  private onValue(value: V) {
+  private onValue = (value: V) => {
     this.config.dispatch(this.dispatch, value);
   }
-
 }
 
 export function enhancer<S>(configs: Array<IReduxEmitterConfig<S, any, any>>): StoreEnhancer<S> {
@@ -49,17 +48,15 @@ export function enhancer<S>(configs: Array<IReduxEmitterConfig<S, any, any>>): S
       const store: Store<S> = next(reducer, preloadedState);
       const emitters = configs.map((config) => new ReduxEmitter(config, store.dispatch));
 
-      store.subscribe(() => {
+      const adopt = () => {
         const newState = store.getState();
         emitters.forEach((emitter) => {
           emitter.adopt(newState);
         });
-      });
+      };
 
-      const state = store.getState();
-      emitters.forEach((emitter) => {
-        emitter.adopt(state);
-      });
+      store.subscribe(adopt);
+      adopt();
 
       return store;
     };
