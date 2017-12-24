@@ -1,6 +1,6 @@
 {
   "name": "@barbuza/kebakaran",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "strongly typed high level utilities for consuming data from firebase",
   "main": "dist/lib/index.js",
   "scripts": {

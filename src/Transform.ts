@@ -37,9 +37,9 @@ export class Transform<F, T> extends Emitter<T> {
   private transform: (from: F) => T;
   private hasData: boolean = false;
 
-  constructor(ref: IRef<F>, transform: (from: F) => T) {
+  constructor(ref: IRef<F> | database.Query, transform: (from: F) => T) {
     super();
-    this.ref = ref;
+    this.ref = ref as IRef<F>;
     this.transform = transform;
   }
 
