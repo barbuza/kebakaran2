@@ -50,10 +50,6 @@
   version "0.2.5"
   resolved "https://registry.yarnpkg.com/@firebase/webchannel-wrapper/-/webchannel-wrapper-0.2.5.tgz#11ccb45505cb56d4bc0a9a09712b14585248e784"
 
-"@types/firebase@^2.4.31":
-  version "2.4.32"
-  resolved "https://registry.yarnpkg.com/@types/firebase/-/firebase-2.4.32.tgz#96224840717dc514c7db328e85444364dbba34ce"
-
 "@types/jest@^20.0.6":
   version "20.0.8"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-20.0.8.tgz#7f8c97f73d20d3bf5448fbe33661a342002b5954"
