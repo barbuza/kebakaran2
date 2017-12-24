@@ -1,4 +1,3 @@
-import { Promise } from "es6-promise";
 import { IRef } from "./IRef";
 import { Listener } from "./Listener";
 

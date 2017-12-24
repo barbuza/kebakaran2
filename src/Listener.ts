@@ -1,5 +1,3 @@
-import { Promise } from "es6-promise";
-
 export class Listener<T> {
   private fn: (value: T) => void;
   private context: any;

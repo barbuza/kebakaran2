@@ -6,7 +6,7 @@ import { ISnapshot } from "./ISnapshot";
 
 export class Transform<F, T> extends Emitter<T> {
 
-  public static keys(ref: IRef<INestedSnapshot<any>> | database.Reference): IRef<string[]> {
+  public static keys(ref: IRef<INestedSnapshot<any>> | database.Query): IRef<string[]> {
     ref = ref as IRef<INestedSnapshot<any>>;
     return new Transform<INestedSnapshot<any>, string[]>(ref, (snapshot) => {
       const result: string[] = [];
@@ -17,7 +17,7 @@ export class Transform<F, T> extends Emitter<T> {
     });
   }
 
-  public static values<T>(ref: IRef<INestedSnapshot<T>> | database.Reference): IRef<T[]> {
+  public static values<T>(ref: IRef<INestedSnapshot<T>> | database.Query): IRef<T[]> {
     ref = ref as IRef<INestedSnapshot<T>>;
     return new Transform<INestedSnapshot<T>, T[]>(ref, (snapshot) => {
       const result: T[] = [];
@@ -28,7 +28,7 @@ export class Transform<F, T> extends Emitter<T> {
     });
   }
 
-  public static val<T>(ref: IRef<ISnapshot<T>> | database.Reference): IRef<T> {
+  public static val<T>(ref: IRef<ISnapshot<T>> | database.Query): IRef<T> {
     ref = ref as IRef<ISnapshot<T>>;
     return new Transform<ISnapshot<T>, T>(ref, (snapshot) => snapshot.val());
   }

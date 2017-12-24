@@ -1,6 +1,6 @@
 {
-  "name": "kebakaran",
-  "version": "2.1.0",
+  "name": "@barbuza/kebakaran",
+  "version": "2.2.0",
   "description": "strongly typed high level utilities for consuming data from firebase",
   "main": "dist/lib/index.js",
   "scripts": {
@@ -15,26 +15,23 @@
   },
   "license": "ISC",
   "peerDependencies": {
-    "immutable": "^3.8.1",
-    "redux": "^3.7.2"
+    "immutable": "^3.8.1"
   },
   "devDependencies": {
     "@types/jest": "^20.0.6",
     "@types/node": "^8.0.20",
     "coveralls": "^2.13.1",
-    "firebase": "^4.2.0",
+    "firebase": "4.8.0",
     "immutable": "^3.8.1",
     "jest": "^20.0.4",
-    "redux": "^3.7.2",
     "rimraf": "^2.6.1",
     "ts-jest": "^20.0.10",
-    "tslint": "^5.6.0",
-    "typescript": "^2.4.2"
+    "tslint": "^5.6.0"
   },
   "dependencies": {
     "@types/firebase": "^2.4.31",
-    "es6-promise": "^4.1.1",
-    "tslib": "^1.7.1"
+    "tslib": "^1.8.1",
+    "typescript": "^2.6.2"
   },
   "jest": {
     "moduleFileExtensions": [

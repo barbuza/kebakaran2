@@ -1,7 +1,5 @@
-import { Promise } from "es6-promise";
 import * as firebase from "firebase";
-import { Action, createStore, Dispatch, Store } from "redux";
-import { Emitter, enhancer, List, Struct, Transform } from "../";
+import { Emitter, List, Struct, Transform } from "../";
 
 firebase.initializeApp({
   apiKey: "AIzaSyCxyLT0arghKyY9N3SBz9WZ40TR0ovDFXo",
@@ -58,47 +56,6 @@ describe("Firebase", () => {
 
     return list.once("value").then((value) => {
       expect(value).toEqual(usersData);
-    });
-  });
-
-  it("should be compatible with redux", () => {
-    interface IReduxState {
-      users: IUser[] | undefined;
-    }
-
-    interface ISetUsersAction extends Action {
-      type: "SET_USERS";
-      users: IUser[];
-    }
-
-    function isSetUsersAction(action: Action): action is ISetUsersAction {
-      return action.type === "SET_USERS";
-    }
-
-    function reducer<A extends Action>(state: IReduxState = { users: undefined }, action: A): IReduxState {
-      if (isSetUsersAction(action)) {
-        return { users: action.users };
-      }
-      return state;
-    }
-
-    const configs = [{
-      dispatch: (dispatch: Dispatch<IReduxState>, users: IUser[]) => dispatch({ type: "SET_USERS", users }),
-      key: (state: IReduxState) => state.users ? undefined : true,
-      ref: () => new List(Transform.keys(database.ref("users")), makeUser),
-    }];
-
-    const store: Store<IReduxState> = enhancer<IReduxState>(configs)(createStore)(reducer);
-    expect(store.getState()).toEqual({ users: undefined });
-
-    const storeState = new Promise((resolve) => {
-      store.subscribe(() => {
-        resolve(store.getState());
-      });
-    });
-
-    return storeState.then((state) => {
-      expect(state).toEqual({ users: usersData });
     });
   });
 });
