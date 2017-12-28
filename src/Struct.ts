@@ -1,9 +1,10 @@
+import { database } from "firebase";
 import { Emitter } from "./Emitter";
 import { IRef } from "./IRef";
 
-export interface IStructFields {
-  [key: string]: IRef<any>;
-}
+export type IStructFields<T> = {
+  [K in keyof T]: IRef<T[K]> | database.Query;
+};
 
 interface IFieldListeners {
   [key: string]: (value: any) => void;
@@ -15,11 +16,9 @@ export class Struct<T> extends Emitter<T> {
 
   private unknownFields: string[] = [];
   private fieldListeners: IFieldListeners = {};
-  private fields: IStructFields = {};
 
-  constructor(fields: IStructFields) {
+  constructor(private fields: IStructFields<T>) {
     super();
-    this.fields = fields;
     for (const name of Object.keys(this.fields)) {
       this.unknownFields.push(name);
     }
